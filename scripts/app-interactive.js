@@ -465,7 +465,6 @@ function initLoginBottomSheet() {
     </div>
 
     <div class="login-sheet-body">
-      <div class="login-sheet-info-banner" id="login-sheet-info-banner" style="display: none;"></div>
 
       <!-- SUCCESS SCREEN (CURRENT TOGGLE WHEN DATA GOES TO SUPABASE) -->
       <div class="party-ticket-container" id="sheet-success-card" style="display: none;">
@@ -868,11 +867,6 @@ function openLoginModal(reason) {
   const sheet = document.getElementById("login-bottom-sheet");
   if (!backdrop || !sheet) return;
 
-  const infoBanner = document.getElementById("login-sheet-info-banner");
-  if (infoBanner) {
-    infoBanner.style.display = "none";
-    infoBanner.innerHTML = "";
-  }
 
   // Reset to form view if previously showed success or error
   const successCard = document.getElementById("sheet-success-card");
