@@ -1,5 +1,6 @@
 .DS_Store
 __pycache__/
 *.pyc
-mell9899/.DS_Store
-mell9899/index.html.original
+index.html.original
+.env
+

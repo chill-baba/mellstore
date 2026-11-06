@@ -1,0 +1,113 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/casino",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/pages/casino.html",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/pages/v_:game(.*).html",
+      "destination": "/?game=v_:game",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/web/v2/sdui/templates/css-variables",
+      "destination": "/styles/css-variables.css"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/live-casino",
+      "destination": "/pages/live-casino.html"
+    },
+    {
+      "source": "/slots",
+      "destination": "/pages/slots.html"
+    },
+    {
+      "source": "/betting",
+      "destination": "/pages/betting.html"
+    },
+    {
+      "source": "/bonus-buy",
+      "destination": "/pages/bonus-buy.html"
+    },
+    {
+      "source": "/new",
+      "destination": "/pages/new.html"
+    },
+    {
+      "source": "/bonuses",
+      "destination": "/pages/bonuses.html"
+    },
+    {
+      "source": "/promotions",
+      "destination": "/pages/promotions.html"
+    },
+    {
+      "source": "/tournaments",
+      "destination": "/pages/tournaments.html"
+    },
+    {
+      "source": "/wheel",
+      "destination": "/pages/wheel.html"
+    },
+    {
+      "source": "/rules",
+      "destination": "/pages/rules.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/styles/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/scripts/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

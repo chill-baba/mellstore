@@ -6,7 +6,7 @@ import mimetypes
 import urllib.parse
 
 PORT = 8080
-DIRECTORY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mell9899")
+DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 mimetypes.add_type("text/css", ".css")
 mimetypes.add_type("image/webp", ".webp")

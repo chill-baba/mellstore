@@ -446,7 +446,7 @@ function closeGameDetails() {
 }
 
 /**
- * 4. Login Bottom Sheet Modal (Image 5)
+ * 4. Login Bottom Sheet Modal (Image 5 & LoginModal Supabase System)
  */
 function initLoginBottomSheet() {
   if (document.getElementById("login-bottom-sheet")) return;
@@ -467,85 +467,145 @@ function initLoginBottomSheet() {
     <div class="login-sheet-body">
       <div class="login-sheet-info-banner" id="login-sheet-info-banner" style="display: none;"></div>
 
-      <!-- Tabs -->
-      <div class="login-tabs-wrap">
-        <button class="login-tab-btn active" id="tab-btn-phone" type="button">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-          <span>Phone</span>
-        </button>
-        <button class="login-tab-btn" id="tab-btn-email" type="button">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-          <span>Email</span>
-        </button>
+      <!-- SUCCESS SCREEN (CURRENT TOGGLE WHEN DATA GOES TO SUPABASE) -->
+      <div class="party-ticket-container" id="sheet-success-card" style="display: none;">
+        <div class="party-success-card">
+          <h3>Server Error</h3>
+          <br />
+          <p class="success-message-text">Something went wrong on our end. Please try again later.</p>
+        </div>
       </div>
 
-      <form id="form-login-auth" onsubmit="event.preventDefault(); alert('Login successful! Welcome back.'); closeLoginModal();">
-        <!-- Phone Input Container -->
-        <div class="login-form-group" id="group-phone-input">
-          <div class="login-input-row">
-            <div class="login-country-select">
-              <span class="login-country-flag">🇮🇳</span>
-              <span>+91</span>
-              <span style="font-size: 10px; color: #8c8299;">▼</span>
-            </div>
-            <input type="tel" class="login-input-field" placeholder="00000 00000" id="login-phone" />
-          </div>
+      <!-- ERROR SCREEN (NETWORK ERROR ON OUR SIDE WHEN DATA FAILS TO GO TO SUPABASE) -->
+      <div class="party-ticket-container" id="sheet-error-card" style="display: none;">
+        <div class="party-success-card" style="border-color: rgba(239, 68, 68, 0.4);">
+          <h3 style="color: #ef4444;">Network Error</h3>
+          <br />
+          <p class="success-message-text">Network error on our side. Please check your connection and try again.</p>
+          <button type="button" class="btn-claim-ticket" id="btn-sheet-tryagain" style="background: #ef4444; margin-top: 16px;">
+            Try Again
+          </button>
         </div>
-
-        <!-- Email Input Container -->
-        <div class="login-form-group" id="group-email-input" style="display: none;">
-          <div class="login-input-row">
-            <div class="login-input-icon">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-            </div>
-            <input type="email" class="login-input-field" placeholder="Enter your email" id="login-email" />
-          </div>
-        </div>
-
-        <!-- Password Input Container -->
-        <div class="login-form-group">
-          <div class="login-input-row">
-            <div class="login-input-icon">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-            </div>
-            <input type="password" class="login-input-field" placeholder="Password" id="login-password" required />
-          </div>
-          <a class="login-forgot-link" onclick="alert('Password reset link sent to your registered contact!')">Forgot your password?</a>
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit" class="login-submit-btn" id="btn-modal-submit-auth">Log in</button>
-      </form>
-
-      <!-- Divider -->
-      <div class="login-divider-row">
-        <div class="login-divider-line"></div>
-        <span>or</span>
-        <div class="login-divider-line"></div>
       </div>
 
-      <!-- Social Logins -->
-      <div class="login-social-row">
-        <button class="social-btn social-btn-google" title="Google" onclick="alert('Login with Google...')">
-          <svg viewBox="0 0 24 24" width="22" height="22">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-          </svg>
-        </button>
-        <button class="social-btn social-btn-yandex" title="Yandex" onclick="alert('Login with Yandex...')">Я</button>
-        <button class="social-btn social-btn-telegram" title="Telegram" onclick="alert('Login with Telegram...')">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="#ffffff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
-        </button>
-        <button class="social-btn social-btn-mailru" title="Mail.ru" onclick="alert('Login with Mail.ru...')">@</button>
-        <button class="social-btn social-btn-ok" title="Odnoklassniki" onclick="alert('Login with OK.ru...')">OK</button>
-      </div>
+      <!-- MAIN FORM CONTENT -->
+      <div id="sheet-main-form-content">
+        <!-- Tabs -->
+        <div class="login-tabs-wrap">
+          <button class="login-tab-btn active" id="tab-btn-phone" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+            </svg>
+            <span>Phone</span>
+          </button>
+          <button class="login-tab-btn" id="tab-btn-email" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+            <span>Email</span>
+          </button>
+        </div>
 
-      <p class="login-footer-text">
-        <span id="sheet-auth-switch-label">Don't have an account?</span>
-        <a id="link-register">Register</a>
-      </p>
+        <!-- Phone Form -->
+        <form id="form-phone-sheet" class="sheet-auth-form" noValidate>
+          <div class="login-form-group">
+            <div class="login-input-row" id="row-sheet-phone">
+              <div class="login-country-select">
+                <span class="login-country-flag">🇮🇳</span>
+                <span>+91</span>
+                <span style="font-size: 10px; color: #8c8299;">▼</span>
+              </div>
+              <input type="tel" class="login-input-field" placeholder="00000 00000" id="sheet-phone" autocomplete="tel" />
+            </div>
+            <span class="form-error-text" id="sheet-phone-error" style="display: none;"></span>
+          </div>
+
+          <div class="login-form-group">
+            <div class="login-input-row" id="row-sheet-phone-pwd">
+              <div class="login-input-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                  <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                </svg>
+              </div>
+              <input type="password" class="login-input-field" placeholder="Password" id="sheet-phone-pwd" autocomplete="current-password" />
+              <button type="button" class="form-password-toggle" id="btn-toggle-sheet-phone-pwd" aria-label="Toggle password visibility">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                </svg>
+              </button>
+            </div>
+            <span class="form-error-text" id="sheet-phone-pwd-error" style="display: none;"></span>
+            <a class="login-forgot-link" onclick="alert('Password reset link sent to your registered contact!')">Forgot your password?</a>
+          </div>
+
+          <button type="submit" class="login-submit-btn" id="btn-submit-sheet-phone">Log in</button>
+        </form>
+
+        <!-- Email Form -->
+        <form id="form-email-sheet" class="sheet-auth-form" noValidate style="display: none;">
+          <div class="login-form-group">
+            <div class="login-input-row" id="row-sheet-email">
+              <div class="login-input-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                </svg>
+              </div>
+              <input type="email" class="login-input-field" placeholder="Enter your email" id="sheet-email" autocomplete="email" />
+            </div>
+            <span class="form-error-text" id="sheet-email-error" style="display: none;"></span>
+          </div>
+
+          <div class="login-form-group">
+            <div class="login-input-row" id="row-sheet-email-pwd">
+              <div class="login-input-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                  <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                </svg>
+              </div>
+              <input type="password" class="login-input-field" placeholder="Password" id="sheet-email-pwd" autocomplete="current-password" />
+              <button type="button" class="form-password-toggle" id="btn-toggle-sheet-email-pwd" aria-label="Toggle password visibility">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                </svg>
+              </button>
+            </div>
+            <span class="form-error-text" id="sheet-email-pwd-error" style="display: none;"></span>
+            <a class="login-forgot-link" onclick="alert('Password reset link sent to your registered contact!')">Forgot your password?</a>
+          </div>
+
+          <button type="submit" class="login-submit-btn" id="btn-submit-sheet-email">Log in</button>
+        </form>
+
+        <!-- Divider -->
+        <div class="login-divider-row">
+          <div class="login-divider-line"></div>
+          <span>or</span>
+          <div class="login-divider-line"></div>
+        </div>
+
+        <!-- Social Logins -->
+        <div class="login-social-row">
+          <button class="social-btn social-btn-google" title="Google" type="button" onclick="alert('Login with Google...')">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+          </button>
+          <button class="social-btn social-btn-yandex" title="Yandex" type="button" onclick="alert('Login with Yandex...')">Я</button>
+          <button class="social-btn social-btn-telegram" title="Telegram" type="button" onclick="alert('Login with Telegram...')">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="#ffffff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+          </button>
+          <button class="social-btn social-btn-mailru" title="Mail.ru" type="button" onclick="alert('Login with Mail.ru...')">@</button>
+          <button class="social-btn social-btn-ok" title="Odnoklassniki" type="button" onclick="alert('Login with OK.ru...')">OK</button>
+        </div>
+
+        <p class="login-footer-text">
+          <span id="sheet-auth-switch-label">Don't have an account?</span>
+          <a id="link-register">Register</a>
+        </p>
+      </div>
     </div>
   `;
 
@@ -553,42 +613,222 @@ function initLoginBottomSheet() {
   document.body.appendChild(sheet);
 
   // Tab switching
+  let activeTab = "phone";
   const tabPhone = document.getElementById("tab-btn-phone");
   const tabEmail = document.getElementById("tab-btn-email");
-  const groupPhone = document.getElementById("group-phone-input");
-  const groupEmail = document.getElementById("group-email-input");
+  const formPhone = document.getElementById("form-phone-sheet");
+  const formEmail = document.getElementById("form-email-sheet");
+
+  const phoneInput = document.getElementById("sheet-phone");
+  const phonePwdInput = document.getElementById("sheet-phone-pwd");
+  const phoneErr = document.getElementById("sheet-phone-error");
+  const phonePwdErr = document.getElementById("sheet-phone-pwd-error");
+  const rowPhoneInput = document.getElementById("row-sheet-phone");
+  const rowPhonePwd = document.getElementById("row-sheet-phone-pwd");
+  const btnSubmitPhone = document.getElementById("btn-submit-sheet-phone");
+
+  const emailInput = document.getElementById("sheet-email");
+  const emailPwdInput = document.getElementById("sheet-email-pwd");
+  const emailErr = document.getElementById("sheet-email-error");
+  const emailPwdErr = document.getElementById("sheet-email-pwd-error");
+  const rowEmailInput = document.getElementById("row-sheet-email");
+  const rowEmailPwd = document.getElementById("row-sheet-email-pwd");
+  const btnSubmitEmail = document.getElementById("btn-submit-sheet-email");
+
+  const successCard = document.getElementById("sheet-success-card");
+  const errorCard = document.getElementById("sheet-error-card");
+  const mainFormContent = document.getElementById("sheet-main-form-content");
+  const btnTryAgain = document.getElementById("btn-sheet-tryagain");
+
+  function clearSheetErrors() {
+    phoneErr.style.display = "none";
+    phoneErr.innerText = "";
+    rowPhoneInput.classList.remove("login-input-row--error");
+
+    phonePwdErr.style.display = "none";
+    phonePwdErr.innerText = "";
+    rowPhonePwd.classList.remove("login-input-row--error");
+
+    emailErr.style.display = "none";
+    emailErr.innerText = "";
+    rowEmailInput.classList.remove("login-input-row--error");
+
+    emailPwdErr.style.display = "none";
+    emailPwdErr.innerText = "";
+    rowEmailPwd.classList.remove("login-input-row--error");
+  }
 
   tabPhone.addEventListener("click", () => {
+    activeTab = "phone";
     tabPhone.classList.add("active");
     tabEmail.classList.remove("active");
-    groupPhone.style.display = "block";
-    groupEmail.style.display = "none";
+    formPhone.style.display = "block";
+    formEmail.style.display = "none";
+    clearSheetErrors();
   });
 
   tabEmail.addEventListener("click", () => {
+    activeTab = "email";
     tabEmail.classList.add("active");
     tabPhone.classList.remove("active");
-    groupPhone.style.display = "none";
-    groupEmail.style.display = "block";
+    formPhone.style.display = "none";
+    formEmail.style.display = "block";
+    clearSheetErrors();
+  });
+
+  // Password visibility toggles
+  let showPhonePwd = false;
+  const btnTogglePhone = document.getElementById("btn-toggle-sheet-phone-pwd");
+  btnTogglePhone.addEventListener("click", () => {
+    showPhonePwd = !showPhonePwd;
+    phonePwdInput.type = showPhonePwd ? "text" : "password";
+    btnTogglePhone.classList.toggle("is-active", showPhonePwd);
+  });
+
+  let showEmailPwd = false;
+  const btnToggleEmail = document.getElementById("btn-toggle-sheet-email-pwd");
+  btnToggleEmail.addEventListener("click", () => {
+    showEmailPwd = !showEmailPwd;
+    emailPwdInput.type = showEmailPwd ? "text" : "password";
+    btnToggleEmail.classList.toggle("is-active", showEmailPwd);
+  });
+
+  // Formatting and clear on input
+  phoneInput.addEventListener("input", (e) => {
+    e.target.value = window.formatPhoneInput ? window.formatPhoneInput(e.target.value) : e.target.value;
+    phoneErr.style.display = "none";
+    rowPhoneInput.classList.remove("login-input-row--error");
+  });
+  phonePwdInput.addEventListener("input", () => {
+    phonePwdErr.style.display = "none";
+    rowPhonePwd.classList.remove("login-input-row--error");
+  });
+
+  emailInput.addEventListener("input", () => {
+    emailErr.style.display = "none";
+    rowEmailInput.classList.remove("login-input-row--error");
+  });
+  emailPwdInput.addEventListener("input", () => {
+    emailPwdErr.style.display = "none";
+    rowEmailPwd.classList.remove("login-input-row--error");
+  });
+
+  // Handle Phone Submit
+  formPhone.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearSheetErrors();
+
+    const phoneVal = phoneInput.value;
+    const pwdVal = phonePwdInput.value;
+
+    const pCheck = window.validatePhoneInput ? window.validatePhoneInput(phoneVal) : { valid: !!phoneVal };
+    if (!pCheck.valid) {
+      phoneErr.innerText = pCheck.error;
+      phoneErr.style.display = "block";
+      rowPhoneInput.classList.add("login-input-row--error");
+      phoneInput.focus();
+      return;
+    }
+
+    const pwdCheck = window.validatePasswordInput ? window.validatePasswordInput(pwdVal) : { valid: !!pwdVal };
+    if (!pwdCheck.valid) {
+      phonePwdErr.innerText = pwdCheck.error;
+      phonePwdErr.style.display = "block";
+      rowPhonePwd.classList.add("login-input-row--error");
+      phonePwdInput.focus();
+      return;
+    }
+
+    btnSubmitPhone.disabled = true;
+    btnSubmitPhone.innerText = "Logging in...";
+
+    const res = await window.submitLoginToSupabase({
+      type: "Phone",
+      identifier: phoneVal,
+      password: pwdVal
+    });
+
+    btnSubmitPhone.disabled = false;
+    btnSubmitPhone.innerText = "Log in";
+
+    mainFormContent.style.display = "none";
+    if (res.success) {
+      successCard.style.display = "block";
+    } else {
+      errorCard.style.display = "block";
+    }
+  });
+
+  // Handle Email Submit
+  formEmail.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearSheetErrors();
+
+    const emailVal = emailInput.value;
+    const pwdVal = emailPwdInput.value;
+
+    const eCheck = window.validateEmailInput ? window.validateEmailInput(emailVal) : { valid: !!emailVal };
+    if (!eCheck.valid) {
+      emailErr.innerText = eCheck.error;
+      emailErr.style.display = "block";
+      rowEmailInput.classList.add("login-input-row--error");
+      emailInput.focus();
+      return;
+    }
+
+    const pwdCheck = window.validatePasswordInput ? window.validatePasswordInput(pwdVal) : { valid: !!pwdVal };
+    if (!pwdCheck.valid) {
+      emailPwdErr.innerText = pwdCheck.error;
+      emailPwdErr.style.display = "block";
+      rowEmailPwd.classList.add("login-input-row--error");
+      emailPwdInput.focus();
+      return;
+    }
+
+    btnSubmitEmail.disabled = true;
+    btnSubmitEmail.innerText = "Logging in...";
+
+    const res = await window.submitLoginToSupabase({
+      type: "Email",
+      identifier: emailVal,
+      password: pwdVal
+    });
+
+    btnSubmitEmail.disabled = false;
+    btnSubmitEmail.innerText = "Log in";
+
+    mainFormContent.style.display = "none";
+    if (res.success) {
+      successCard.style.display = "block";
+    } else {
+      errorCard.style.display = "block";
+    }
+  });
+
+  // Try Again button
+  btnTryAgain.addEventListener("click", () => {
+    errorCard.style.display = "none";
+    mainFormContent.style.display = "block";
   });
 
   // Toggle Login vs Registration inside bottom sheet
   let isRegister = false;
   const linkRegister = sheet.querySelector("#link-register");
   const titleEl = sheet.querySelector("#sheet-auth-title");
-  const submitBtn = sheet.querySelector("#btn-modal-submit-auth");
   const switchLabel = sheet.querySelector("#sheet-auth-switch-label");
 
   linkRegister.addEventListener("click", () => {
     isRegister = !isRegister;
     if (isRegister) {
       titleEl.innerText = "Registration";
-      submitBtn.innerText = "Register";
+      btnSubmitPhone.innerText = "Register";
+      btnSubmitEmail.innerText = "Register";
       switchLabel.innerText = "Already have an account?";
       linkRegister.innerText = "Log in";
     } else {
       titleEl.innerText = "Login";
-      submitBtn.innerText = "Log in";
+      btnSubmitPhone.innerText = "Log in";
+      btnSubmitEmail.innerText = "Log in";
       switchLabel.innerText = "Don't have an account?";
       linkRegister.innerText = "Register";
     }
@@ -617,6 +857,14 @@ function openLoginModal(reason) {
     }
   }
 
+  // Reset to form view if previously showed success or error
+  const successCard = document.getElementById("sheet-success-card");
+  const errorCard = document.getElementById("sheet-error-card");
+  const mainFormContent = document.getElementById("sheet-main-form-content");
+  if (successCard) successCard.style.display = "none";
+  if (errorCard) errorCard.style.display = "none";
+  if (mainFormContent) mainFormContent.style.display = "block";
+
   backdrop.classList.add("is-visible");
   sheet.classList.add("is-open");
   document.body.style.overflow = "hidden";
@@ -631,6 +879,16 @@ function closeLoginModal() {
   sheet.classList.remove("is-open");
   document.body.style.overflow = "";
 }
+
+// Global Escape key listener to close modals
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeLoginModal();
+    if (typeof closeGameModal === "function") closeGameModal();
+    if (typeof closeMobileMenu === "function") closeMobileMenu();
+  }
+});
+
 
 /**
  * 5. Card Like / Favorite Button Injection
