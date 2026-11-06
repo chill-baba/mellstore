@@ -18,6 +18,9 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
 
+    def do_HEAD(self):
+        self.do_GET()
+
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
@@ -68,10 +71,12 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
         clean_path = path.lstrip("/")
         local_path = os.path.join(DIRECTORY, clean_path)
         if not os.path.exists(local_path) and not path == "/":
-            # If it's a media/script/style file that's missing, don't redirect (send empty 200/404)
             _, ext = os.path.splitext(clean_path)
-            if ext in (".css", ".js", ".png", ".jpg", ".webp", ".avif", ".svg", ".woff2", ".bin", ".ico"):
-                return super().do_GET()
+            # If it's a media/script/style file that's missing, return empty 200/204 so page assets don't break
+            if ext in (".css", ".js", ".png", ".jpg", ".webp", ".avif", ".svg", ".woff2", ".bin", ".ico", ".json", ".map"):
+                self.send_response(204)
+                self.end_headers()
+                return
 
             # For all missing pages/navigation routes, NEVER direct to error page -> direct to /login
             self.send_response(302)
@@ -82,8 +87,9 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def send_error(self, code, message=None, explain=None):
-        # Never send a 404 or other error page to user: redirect to login page
-        if code in (404, 403, 500):
+        # Never send a 404 or other error page to user: redirect to login page for page visits
+        accept = self.headers.get("Accept", "") if hasattr(self, "headers") and self.headers else ""
+        if "text/html" in accept or "." not in self.path:
             self.send_response(302)
             self.send_header("Location", "/login?reason=required")
             self.end_headers()

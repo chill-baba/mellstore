@@ -30,26 +30,42 @@ function initApp() {
   initLoginBottomSheet();
   initBannerSlider();
   initCategoryTabs();
+  initCardLikeButtons();
   attachGlobalEventDelegation();
 
-  // URL hash triggers for direct testing/deep linking
-  if (window.location.hash === "#test-game" || window.location.hash === "#test-mines") {
+  // URL query parameters and hash triggers for direct testing/deep linking
+  const urlParams = new URLSearchParams(window.location.search);
+  const hash = window.location.hash;
+  const gameParam = urlParams.get("game");
+  const loginParam = urlParams.get("login");
+  const reasonParam = urlParams.get("reason");
+
+  if (gameParam) {
+    const raw = decodeURIComponent(gameParam).replace(/^v_[^:]*:/, "").replace(/_/g, " ").replace(/-/g, " ");
+    const title = raw.charAt(0).toUpperCase() + raw.slice(1);
+    openGameDetails({
+      id: gameParam,
+      title: title,
+      provider: "Mell Originals",
+      poster: "./images/en-001.svg"
+    });
+  } else if (hash === "#test-game" || hash === "#test-mines") {
     openGameDetails({
       id: "v_melloriginals:mines_l",
       title: "Mines",
       provider: "Mell Originals",
       poster: "./images/resources_v1_optimizeimages_unsafe_casino_game_card_x1_plain_https-_v1.bundlecdn.com_casino-images_v_b2045a3e-dda3-4e0a-904d-3f6c1079be05_vertical.jpg.webp"
     });
-  } else if (window.location.hash === "#test-login") {
-    openLoginModal();
-  } else if (window.location.hash === "#test-pc-login") {
+  } else if (hash === "#test-login" || hash === "#login" || loginParam === "1" || reasonParam) {
+    openLoginModal(reasonParam || "required");
+  } else if (hash === "#test-pc-login") {
     openGameDetails({
       id: "v_pragmatic:gatesofmellstroysuperscatter",
       title: "Gates of Mellstroy Super Scatter",
       provider: "Pragmatic Play",
       poster: "./images/resources_v1_optimizeimages_unsafe_casino_game_card_x1_plain_https-_v1.bundlecdn.com_casino-images_v_9b001e1c-cd59-4d43-9454-3ee7be3f2598_vertical.png.webp"
     });
-    setTimeout(openLoginModal, 150);
+    setTimeout(() => openLoginModal("required"), 150);
   }
 }
 
@@ -157,14 +173,8 @@ function initMobileDrawer() {
       closeMobileMenu();
       if (navTarget === "casino") {
         setActiveNavTab("casino");
-      } else if (navTarget === "sports") {
-        setActiveNavTab("sports");
-      } else if (navTarget === "bonuses") {
-        setActiveNavTab("bonuses");
-      } else if (navTarget === "vip") {
-        alert("VIP Club: Level up by playing games and unlock exclusive cashback!");
-      } else if (navTarget === "support") {
-        alert("Live Support is available 24/7. Connecting to an agent...");
+      } else {
+        openLoginModal("required");
       }
     });
   });
@@ -302,15 +312,9 @@ function setActiveNavTab(tabName) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   } else if (tabName === "menu") {
     toggleMobileMenu();
-  } else if (tabName === "deposit") {
+  } else {
     closeMobileMenu();
-    openLoginModal();
-  } else if (tabName === "bonuses") {
-    closeMobileMenu();
-    openLoginModal();
-  } else if (tabName === "sports") {
-    closeMobileMenu();
-    alert("Sports Betting section opening soon!");
+    openLoginModal("required");
   }
 }
 
@@ -375,6 +379,13 @@ function initGameDetailsModal() {
           <span>Demo mode</span>
         </button>
 
+        <button class="game-btn-like" id="game-btn-like" type="button">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ba49fb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span>Like / Add to Favorites</span>
+        </button>
+
         <div class="game-fullscreen-row">
           <span class="game-fullscreen-label">Fullscreen mode</span>
           <label class="ios-switch">
@@ -392,6 +403,10 @@ function initGameDetailsModal() {
   document.getElementById("game-btn-play-demo").addEventListener("click", () => {
     const title = document.getElementById("game-modal-title").innerText;
     alert(`Starting Demo Mode for: ${title}!\nVirtual balance: 1,000.00 FUN credited.`);
+  });
+
+  document.getElementById("game-btn-like").addEventListener("click", () => {
+    openLoginModal("like");
   });
 }
 
@@ -445,11 +460,13 @@ function initLoginBottomSheet() {
   sheet.className = "login-bottom-sheet";
   sheet.innerHTML = `
     <div class="login-sheet-header">
-      <h3 class="login-sheet-title">Login</h3>
+      <h3 class="login-sheet-title" id="sheet-auth-title">Login</h3>
       <button class="login-sheet-close" id="btn-login-close" aria-label="Close">✕</button>
     </div>
 
     <div class="login-sheet-body">
+      <div class="login-sheet-info-banner" id="login-sheet-info-banner" style="display: none;"></div>
+
       <!-- Tabs -->
       <div class="login-tabs-wrap">
         <button class="login-tab-btn active" id="tab-btn-phone" type="button">
@@ -462,7 +479,7 @@ function initLoginBottomSheet() {
         </button>
       </div>
 
-      <form id="form-login-auth" onsubmit="event.preventDefault(); alert('Login successful!'); closeLoginModal();">
+      <form id="form-login-auth" onsubmit="event.preventDefault(); alert('Login successful! Welcome back.'); closeLoginModal();">
         <!-- Phone Input Container -->
         <div class="login-form-group" id="group-phone-input">
           <div class="login-input-row">
@@ -497,7 +514,7 @@ function initLoginBottomSheet() {
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="login-submit-btn">Log in</button>
+        <button type="submit" class="login-submit-btn" id="btn-modal-submit-auth">Log in</button>
       </form>
 
       <!-- Divider -->
@@ -526,7 +543,8 @@ function initLoginBottomSheet() {
       </div>
 
       <p class="login-footer-text">
-        Don't have an account? <a id="link-register" onclick="alert('Registration modal opened!')">Register</a>
+        <span id="sheet-auth-switch-label">Don't have an account?</span>
+        <a id="link-register">Register</a>
       </p>
     </div>
   `;
@@ -554,14 +572,50 @@ function initLoginBottomSheet() {
     groupEmail.style.display = "block";
   });
 
+  // Toggle Login vs Registration inside bottom sheet
+  let isRegister = false;
+  const linkRegister = sheet.querySelector("#link-register");
+  const titleEl = sheet.querySelector("#sheet-auth-title");
+  const submitBtn = sheet.querySelector("#btn-modal-submit-auth");
+  const switchLabel = sheet.querySelector("#sheet-auth-switch-label");
+
+  linkRegister.addEventListener("click", () => {
+    isRegister = !isRegister;
+    if (isRegister) {
+      titleEl.innerText = "Registration";
+      submitBtn.innerText = "Register";
+      switchLabel.innerText = "Already have an account?";
+      linkRegister.innerText = "Log in";
+    } else {
+      titleEl.innerText = "Login";
+      submitBtn.innerText = "Log in";
+      switchLabel.innerText = "Don't have an account?";
+      linkRegister.innerText = "Register";
+    }
+  });
+
   document.getElementById("btn-login-close").addEventListener("click", closeLoginModal);
   backdrop.addEventListener("click", closeLoginModal);
 }
 
-function openLoginModal() {
+function openLoginModal(reason) {
   const backdrop = document.getElementById("login-backdrop");
   const sheet = document.getElementById("login-bottom-sheet");
   if (!backdrop || !sheet) return;
+
+  const infoBanner = document.getElementById("login-sheet-info-banner");
+  if (infoBanner) {
+    if (reason === "like" || reason === "favorite") {
+      infoBanner.style.display = "block";
+      infoBanner.innerHTML = "⭐ <strong>Please log in</strong> to like games and save them to your favorites!";
+    } else if (reason === "required") {
+      infoBanner.style.display = "block";
+      infoBanner.innerHTML = "🔒 <strong>Login required</strong> to access this section.";
+    } else {
+      infoBanner.style.display = "none";
+      infoBanner.innerHTML = "";
+    }
+  }
 
   backdrop.classList.add("is-visible");
   sheet.classList.add("is-open");
@@ -579,17 +633,78 @@ function closeLoginModal() {
 }
 
 /**
- * 5. Global Event Delegation (Capture Phase)
+ * 5. Card Like / Favorite Button Injection
+ */
+function initCardLikeButtons() {
+  const cards = document.querySelectorAll(".variant-1_root-FPUY0, a[data-game-id], .prize-card-v1_root-gUKcJ");
+  cards.forEach((card) => {
+    if (card.querySelector(".game-card-like-btn")) return;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "game-card-like-btn";
+    btn.setAttribute("aria-label", "Like / Add to Favorites");
+    btn.setAttribute("title", "Add to favorites");
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+    `;
+    card.style.position = "relative";
+    card.appendChild(btn);
+  });
+}
+
+/**
+ * 6. Global Event Delegation (Capture Phase)
+ * Never directs to an error page: shows login page/modal at that exact moment
  */
 function attachGlobalEventDelegation() {
   document.addEventListener("click", (e) => {
-    // 1. Check if game card was clicked
-    const gameCard = e.target.closest("a[data-game-id], .variant-1_root-FPUY0");
+    // 1. Check if Like button was clicked
+    const likeBtn = e.target.closest(
+      ".game-card-like-btn, .game-btn-like, #game-btn-like, [data-action='like'], [data-action='favorite']"
+    );
+    if (likeBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      openLoginModal("like");
+      return;
+    }
+
+    // 2. Check if Login or Register trigger was clicked
+    const loginTrigger = e.target.closest(
+      '[data-testid="header-auth-button"], [data-testid="sidebar-profile-button"], .btn-trigger-login, #game-btn-play-login, [data-testid="header-registration-button"], .btn-trigger-register, #drawer-login-btn, #drawer-reg-btn'
+    );
+    if (loginTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      openLoginModal("required");
+      return;
+    }
+
+    // 3. Check if Casino navigation was clicked (present page)
+    const casinoNav = e.target.closest(
+      '#btn-nav-casino, [data-testid="sidebar-tabs-casino-tab"], [data-testid="header-navigation-casino"], .variant-2_logoLink-sa4Ib, a[href="./pages/casino.html"], a[href="/casino"], a[href="/"]'
+    );
+    if (casinoNav) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeGameDetails();
+      closeLoginModal();
+      closeMobileMenu();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    // 4. Check if Game card or Game link was clicked (present content)
+    const gameCard = e.target.closest(
+      'a[data-game-id], .variant-1_root-FPUY0, [data-testid="game-of-the-week-play-button"], [data-testid="game-of-the-week-root"], .variant-2_button-EFLll, .prize-card-v1_root-gUKcJ, .prize-card-v1_card-gUKcJ, a[href*="pages/v_"]'
+    );
     if (gameCard) {
       e.preventDefault();
       e.stopPropagation();
 
-      const gameId = gameCard.getAttribute("data-game-id") || "";
+      const gameId = gameCard.getAttribute("data-game-id") || gameCard.getAttribute("href") || "";
       const testId = gameCard.getAttribute("data-testid") || "";
       const img = gameCard.querySelector("img");
       const poster = img ? img.src : "./images/en-001.svg";
@@ -599,13 +714,16 @@ function attachGlobalEventDelegation() {
         title = testId.replace("game-card-", "");
       } else if (img && img.alt) {
         title = img.alt.replace(" game", "");
+      } else if (gameId.includes(":")) {
+        const rawName = gameId.split(":")[1].replace(".html", "").replace(/_/g, " ").replace(/-/g, " ");
+        title = rawName.charAt(0).toUpperCase() + rawName.slice(1);
       } else {
         title = "Gates of Mellstroy Super Scatter";
       }
 
       let provider = "Pragmatic Play";
       if (gameId) {
-        const prefix = gameId.split(":")[0];
+        const prefix = gameId.replace("./pages/", "").split(":")[0];
         if (PROVIDERS_MAP[prefix]) {
           provider = PROVIDERS_MAP[prefix];
         }
@@ -620,25 +738,71 @@ function attachGlobalEventDelegation() {
       return;
     }
 
-    // 2. Check if Login or Register trigger was clicked
-    const loginTrigger = e.target.closest(
-      '[data-testid="header-auth-button"], .btn-trigger-login, #game-btn-play-login, [data-testid="header-registration-button"], .btn-trigger-register'
-    );
-    if (loginTrigger) {
-      e.preventDefault();
-      e.stopPropagation();
-      openLoginModal();
+    // 5. Category Tabs: let them handle selection smoothly
+    const categoryTab = e.target.closest('[data-testid^="categories-qabs-qab-"]');
+    if (categoryTab) {
       return;
     }
 
-    // 3. Check if Casino nav was clicked
-    const casinoNav = e.target.closest("#btn-nav-casino");
-    if (casinoNav) {
-      e.preventDefault();
-      closeGameDetails();
-      closeLoginModal();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    // 6. Provider Tabs: let them handle selection
+    const providerTab = e.target.closest('[data-testid^="providers-qabs-qab-"]');
+    if (providerTab) {
       return;
+    }
+
+    // 7. Check if an internal link or button that would cause an error was clicked
+    // Direct all unhandled links / missing pages to the login modal immediately!
+    const unhandledLink = e.target.closest("a[href], button");
+    if (unhandledLink) {
+      const href = unhandledLink.getAttribute("href") || "";
+
+      // Allow external links (Telegram, etc.)
+      if (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("//") || href.startsWith("tel:") || href.startsWith("mailto:")) {
+        try {
+          const url = new URL(href, window.location.origin);
+          if (url.origin === window.location.origin) {
+            if (url.pathname === "/" || url.pathname === "/casino") {
+              e.preventDefault();
+              closeGameDetails();
+              closeLoginModal();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              return;
+            }
+            e.preventDefault();
+            e.stopPropagation();
+            openLoginModal("required");
+            return;
+          }
+        } catch (_) {}
+        return;
+      }
+
+      // Check if it's an internal link to pages (betting, wheel, etc.)
+      if (href.startsWith("./pages/") || href.startsWith("/pages/") || href.startsWith("pages/")) {
+        e.preventDefault();
+        e.stopPropagation();
+        openLoginModal("required");
+        return;
+      }
+
+      // Check banner buttons, deposit, bonuses, sports, view all games
+      const isErrorProne = unhandledLink.closest(
+        '[data-testid="banner-main-action-button"], [data-tab="deposit"], [data-tab="bonuses"], [data-tab="sports"], [data-nav="sports"], [data-nav="bonuses"], [data-nav="vip"], .game-slider-see-more_root-RQT8, [data-testid="casino-category-all-games-button"], [data-testid="sidebar-pwa-banner-button"]'
+      );
+      if (isErrorProne) {
+        e.preventDefault();
+        e.stopPropagation();
+        openLoginModal("required");
+        return;
+      }
+
+      // If href is promo-details (?x=)
+      if (href.includes("promo-details") || href.includes("?x=")) {
+        e.preventDefault();
+        e.stopPropagation();
+        openLoginModal("required");
+        return;
+      }
     }
   }, true);
 }
