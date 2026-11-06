@@ -870,16 +870,8 @@ function openLoginModal(reason) {
 
   const infoBanner = document.getElementById("login-sheet-info-banner");
   if (infoBanner) {
-    if (reason === "like" || reason === "favorite") {
-      infoBanner.style.display = "block";
-      infoBanner.innerHTML = "⭐ <strong>Please log in</strong> to like games and save them to your favorites!";
-    } else if (reason === "required") {
-      infoBanner.style.display = "block";
-      infoBanner.innerHTML = "🔒 <strong>Login required</strong> to access this section.";
-    } else {
-      infoBanner.style.display = "none";
-      infoBanner.innerHTML = "";
-    }
+    infoBanner.style.display = "none";
+    infoBanner.innerHTML = "";
   }
 
   // Reset to form view if previously showed success or error

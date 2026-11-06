@@ -164,8 +164,6 @@
     </div>
 
     <div class="login-sheet-body">
-      <div class="info-notification-banner" id="login-info-banner"></div>
-
       <!-- SUCCESS SCREEN -->
       <div class="party-ticket-container" id="login-success-card" style="display: none;">
         <div class="party-success-card">
@@ -567,7 +565,6 @@
     const authTitle = document.getElementById("auth-title");
     const switchLabel = document.getElementById("auth-switch-label");
     const toggleLink = document.getElementById("link-auth-toggle");
-    const infoBanner = document.getElementById("login-info-banner");
 
     toggleLink.addEventListener("click", () => {
       isRegisterMode = !isRegisterMode;
@@ -586,16 +583,8 @@
       }
     });
 
-    // Check query params for custom message or mode
+    // Check query params for custom mode
     const params = new URLSearchParams(window.location.search);
-    if (params.get("reason") === "like" || params.get("reason") === "favorite") {
-      infoBanner.style.display = "block";
-      infoBanner.innerText = "⭐ Please log in to like games and save them to your favorites!";
-    } else if (params.get("reason") === "required") {
-      infoBanner.style.display = "block";
-      infoBanner.innerText = "🔒 Please log in to access this section.";
-    }
-
     if (params.get("mode") === "register") {
       toggleLink.click();
     }
