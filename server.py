@@ -134,9 +134,12 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Expires", "0")
         super().end_headers()
 
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    allow_reuse_address = True
+    daemon_threads = True
+
 if __name__ == "__main__":
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
+    with ThreadedTCPServer(("", PORT), CustomHandler) as httpd:
         print(f"Mellstroy casino hosting started at http://localhost:{PORT}")
         try:
             httpd.serve_forever()
