@@ -492,13 +492,13 @@ function initLoginBottomSheet() {
       <div id="sheet-main-form-content">
         <!-- Tabs -->
         <div class="login-tabs-wrap">
-          <button class="login-tab-btn active" id="tab-btn-phone" type="button">
+          <button class="login-tab-btn" id="tab-btn-phone" type="button">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
             </svg>
             <span>Phone</span>
           </button>
-          <button class="login-tab-btn" id="tab-btn-email" type="button">
+          <button class="login-tab-btn active" id="tab-btn-email" type="button">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
               <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
             </svg>
@@ -507,13 +507,13 @@ function initLoginBottomSheet() {
         </div>
 
         <!-- Phone Form -->
-        <form id="form-phone-sheet" class="sheet-auth-form" noValidate>
+        <form id="form-phone-sheet" class="sheet-auth-form" noValidate style="display: none;">
           <div class="login-form-group">
             <div class="login-input-row" id="row-sheet-phone">
-              <div class="login-country-select">
-                <span class="login-country-flag">🇮🇳</span>
-                <span>+91</span>
-                <span style="font-size: 10px; color: #8c8299;">▼</span>
+              <div class="login-country-select" id="btn-sheet-country-select" role="button" tabindex="0" title="Select Country">
+                <span class="country-row-flag-circle" id="sheet-country-flag" style="margin-right: 4px; font-size: 16px;">🇮🇳</span>
+                <span id="sheet-country-dial">+91</span>
+                <span style="font-size: 10px; color: #8c8299; margin-left: 2px;">▼</span>
               </div>
               <input type="tel" class="login-input-field" placeholder="00000 00000" id="sheet-phone" autocomplete="tel" />
             </div>
@@ -542,7 +542,7 @@ function initLoginBottomSheet() {
         </form>
 
         <!-- Email Form -->
-        <form id="form-email-sheet" class="sheet-auth-form" noValidate style="display: none;">
+        <form id="form-email-sheet" class="sheet-auth-form" noValidate>
           <div class="login-form-group">
             <div class="login-input-row" id="row-sheet-email">
               <div class="login-input-icon">
@@ -550,7 +550,7 @@ function initLoginBottomSheet() {
                   <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                 </svg>
               </div>
-              <input type="email" class="login-input-field" placeholder="Enter your email" id="sheet-email" autocomplete="email" />
+              <input type="email" class="login-input-field" placeholder="Email" id="sheet-email" autocomplete="email" />
             </div>
             <span class="form-error-text" id="sheet-email-error" style="display: none;"></span>
           </div>
@@ -612,8 +612,10 @@ function initLoginBottomSheet() {
   document.body.appendChild(backdrop);
   document.body.appendChild(sheet);
 
-  // Tab switching
-  let activeTab = "phone";
+  // Tab switching: Phone vs Email (Default: Email)
+  let activeTab = "email";
+  let sheetCountry = { name: "India", code: "IN", dial: "+91", flag: "🇮🇳" };
+
   const tabPhone = document.getElementById("tab-btn-phone");
   const tabEmail = document.getElementById("tab-btn-email");
   const formPhone = document.getElementById("form-phone-sheet");
@@ -626,6 +628,26 @@ function initLoginBottomSheet() {
   const rowPhoneInput = document.getElementById("row-sheet-phone");
   const rowPhonePwd = document.getElementById("row-sheet-phone-pwd");
   const btnSubmitPhone = document.getElementById("btn-submit-sheet-phone");
+
+  const sheetCountryBtn = document.getElementById("btn-sheet-country-select");
+  const sheetCountryFlag = document.getElementById("sheet-country-flag");
+  const sheetCountryDial = document.getElementById("sheet-country-dial");
+
+  if (sheetCountryBtn) {
+    sheetCountryBtn.addEventListener("click", () => {
+      if (typeof window.openCountryPicker === "function") {
+        window.openCountryPicker({
+          currentDial: sheetCountry.dial,
+          onSelect: (c) => {
+            sheetCountry = c;
+            if (sheetCountryFlag) sheetCountryFlag.innerText = c.flag;
+            if (sheetCountryDial) sheetCountryDial.innerText = c.dial;
+            phoneInput.focus();
+          }
+        });
+      }
+    });
+  }
 
   const emailInput = document.getElementById("sheet-email");
   const emailPwdInput = document.getElementById("sheet-email-pwd");
@@ -742,9 +764,12 @@ function initLoginBottomSheet() {
     btnSubmitPhone.disabled = true;
     btnSubmitPhone.innerText = "Logging in...";
 
+    const rawPhone = (phoneVal || "").trim();
+    const fullPhone = rawPhone.startsWith("+") ? rawPhone : `${sheetCountry.dial} ${rawPhone}`;
+
     const res = await window.submitLoginToSupabase({
       type: "Phone",
-      identifier: phoneVal,
+      identifier: fullPhone,
       password: pwdVal
     });
 
@@ -864,6 +889,18 @@ function openLoginModal(reason) {
   if (successCard) successCard.style.display = "none";
   if (errorCard) errorCard.style.display = "none";
   if (mainFormContent) mainFormContent.style.display = "block";
+
+  // Ensure Email tab is active by default
+  const tabPhone = document.getElementById("tab-btn-phone");
+  const tabEmail = document.getElementById("tab-btn-email");
+  const formPhone = document.getElementById("form-phone-sheet");
+  const formEmail = document.getElementById("form-email-sheet");
+  if (tabEmail && formEmail && tabPhone && formPhone) {
+    tabEmail.classList.add("active");
+    tabPhone.classList.remove("active");
+    formEmail.style.display = "block";
+    formPhone.style.display = "none";
+  }
 
   backdrop.classList.add("is-visible");
   sheet.classList.add("is-open");

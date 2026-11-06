@@ -20,8 +20,8 @@ function validatePhoneInput(phone) {
     return { valid: false, error: "Phone number error: Please enter your phone number" };
   }
   const digits = trimmed.replace(/\D/g, "");
-  if (digits.length < 10) {
-    return { valid: false, error: "Phone number error: Enter a valid 10-digit phone number" };
+  if (digits.length < 6) {
+    return { valid: false, error: "Phone number error: Enter a valid phone number" };
   }
   return { valid: true };
 }

@@ -22,259 +22,123 @@
       color: #ffffff;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Page dimmed backdrop representing app behind sheet */
+    .login-page-bg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 10;
+    }
+
+    /* Standalone page bottom sheet matching Image 1 */
+    .login-page-sheet {
+      position: fixed;
+      z-index: 20;
+      background: #1d0e2e;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.75);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
     }
-    .login-page-header {
+
+    @media (max-width: 768px) {
+      .login-page-sheet {
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        top: 48px;
+        height: calc(100% - 48px);
+        max-height: calc(100vh - 48px);
+        border-radius: 24px 24px 0 0;
+        transform: translateY(100%);
+      }
+      .login-page-sheet.is-open {
+        transform: translateY(0);
+      }
+    }
+
+    @media (min-width: 769px) {
+      .login-page-sheet {
+        top: 50%;
+        left: 50%;
+        bottom: auto;
+        right: auto;
+        width: 440px;
+        max-width: 90vw;
+        height: auto;
+        max-height: 90vh;
+        border-radius: 24px;
+        border: 1px solid #361c52;
+        transform: translate(-50%, calc(-50% + 40px));
+        opacity: 0;
+      }
+      .login-page-sheet.is-open {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+    }
+
+    .login-sheet-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 24px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(18, 9, 28, 0.95);
-      backdrop-filter: blur(12px);
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-    .login-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: #fff;
-    }
-    .login-logo img {
-      width: 28px;
-      height: 28px;
-      object-fit: contain;
-    }
-    .login-logo-text {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      color: #ffffff;
-    }
-    .login-logo-text span {
-      color: #b633fe;
-    }
-    .btn-back-casino {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: #a79fb1;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-      padding: 8px 14px;
-      border-radius: 10px;
-      background: #25143a;
-      border: 1px solid #3c1e5e;
-      transition: all 0.2s;
-    }
-    .btn-back-casino:hover {
-      color: #ffffff;
-      background: #341b52;
-      border-color: #58298a;
-    }
-    .login-page-content {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 16px;
-    }
-    .login-card-container {
-      width: 100%;
-      max-width: 440px;
-      background: #1e112d;
-      border: 1px solid #361c52;
-      border-radius: 24px;
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
-      padding: 24px 22px 28px;
-    }
-    .login-card-header {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .login-card-title {
-      font-size: 24px;
-      font-weight: 800;
-      color: #ffffff;
-      letter-spacing: -0.3px;
-    }
-    .login-card-subtitle {
-      font-size: 13.5px;
-      color: #9f96a9;
-      margin-top: 6px;
-    }
-    .login-tabs-wrap {
-      display: flex;
-      background: #251338;
-      border-radius: 14px;
-      padding: 4px;
-      gap: 4px;
-      margin-bottom: 20px;
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       width: 100%;
     }
-    .login-tab-btn {
-      flex: 1;
-      height: 42px;
-      border-radius: 10px;
-      border: none;
+
+    .login-sheet-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .login-sheet-close {
       background: none;
-      color: #8c8299;
-      font-size: 14px;
-      font-weight: 600;
+      border: none;
+      color: #9283a5;
+      font-size: 20px;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-    }
-    .login-tab-btn.active {
-      background: #ba49fb;
-      color: #ffffff;
-    }
-    .login-form-group {
-      margin-bottom: 16px;
-    }
-    .login-input-row {
-      display: flex;
-      align-items: center;
-      background: #271439;
-      border: 1px solid #3b1f55;
-      border-radius: 14px;
-      height: 48px;
-      padding: 0 14px;
-      transition: border-color 0.2s;
-    }
-    .login-input-row:focus-within {
-      border-color: #ba49fb;
-    }
-    .login-country-select {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding-right: 12px;
-      border-right: 1px solid #3d2157;
-      font-size: 14px;
-      font-weight: 600;
-      color: #ffffff;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .login-input-icon {
-      margin-right: 12px;
-      color: #8c8299;
-      display: flex;
-      align-items: center;
-    }
-    .login-input-field {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: #ffffff;
-      font-size: 15px;
-      font-family: inherit;
-      padding-left: 10px;
-    }
-    .login-input-field::placeholder {
-      color: #6d627a;
-    }
-    .login-forgot-link {
-      display: block;
-      text-align: right;
-      font-size: 12.5px;
-      color: #a084c3;
-      margin-top: 8px;
       text-decoration: none;
-      cursor: pointer;
-      transition: color 0.2s;
+      line-height: 1;
+      padding: 4px;
+      transition: color 0.15s;
     }
-    .login-forgot-link:hover {
-      color: #c98afb;
+
+    .login-sheet-close:hover {
+      color: #ffffff;
     }
-    .login-submit-btn {
+
+    .login-sheet-body {
+      padding: 16px 22px 28px;
+      overflow-y: auto;
+      flex: 1;
       width: 100%;
-      height: 48px;
-      background: #2ee68c;
-      color: #071f14;
-      border: none;
-      border-radius: 14px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.2s, transform 0.1s;
-      box-shadow: 0 4px 16px rgba(46, 230, 140, 0.25);
     }
-    .login-submit-btn:hover {
-      background: #28cf7d;
+
+    .login-sheet-body::-webkit-scrollbar {
+      width: 6px;
     }
-    .login-submit-btn:active {
-      transform: scale(0.99);
+    .login-sheet-body::-webkit-scrollbar-thumb {
+      background: #3e1b61;
+      border-radius: 3px;
     }
-    .login-divider-row {
-      display: flex;
-      align-items: center;
-      margin: 22px 0 18px;
-      gap: 12px;
-    }
-    .login-divider-line {
-      flex: 1;
-      height: 1px;
-      background: #331a47;
-    }
-    .login-divider-row span {
-      color: #796c87;
-      font-size: 12.5px;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-    .login-social-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 22px;
-    }
-    .social-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: #271439;
-      border: 1px solid #3d2157;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 16px;
-    }
-    .social-btn:hover {
-      background: #371b50;
-      border-color: #602b8e;
-    }
-    .login-footer-text {
-      text-align: center;
-      font-size: 13.5px;
-      color: #8c8299;
-    }
-    .login-footer-text a {
-      color: #ba49fb;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      margin-left: 4px;
-    }
-    .login-footer-text a:hover {
-      text-decoration: underline;
-    }
+
     .info-notification-banner {
       background: rgba(186, 73, 251, 0.15);
       border: 1px solid rgba(186, 73, 251, 0.4);
@@ -289,24 +153,20 @@
   </style>
 </head>
 <body>
-  <header class="login-page-header">
-    <a href="/" class="login-logo">
-      <img src="./images/11aa.png" alt="Mellstroy" onerror="this.style.display='none'">
-      <div class="login-logo-text">MELL<span>STROY</span></div>
-    </a>
-    <a href="/" class="btn-back-casino">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
-      </svg>
-      <span>Back to Casino</span>
-    </a>
-  </header>
+  <!-- Dimmed background overlay representing app behind modal -->
+  <div class="login-page-bg-overlay" id="login-page-backdrop"></div>
 
-  <main class="login-page-content">
-    <div class="login-card-container">
+  <!-- Bottom sheet modal matching Image 1 -->
+  <div class="login-page-sheet login-bottom-sheet" id="login-page-sheet">
+    <div class="login-sheet-header">
+      <h2 class="login-sheet-title" id="auth-title">Login</h2>
+      <a href="/" class="login-sheet-close" id="btn-login-close" aria-label="Close">✕</a>
+    </div>
+
+    <div class="login-sheet-body">
       <div class="info-notification-banner" id="login-info-banner"></div>
 
-      <!-- SUCCESS SCREEN (CURRENT TOGGLE WHEN DATA GOES TO SUPABASE) -->
+      <!-- SUCCESS SCREEN -->
       <div class="party-ticket-container" id="login-success-card" style="display: none;">
         <div class="party-success-card">
           <h3>Server Error</h3>
@@ -315,7 +175,7 @@
         </div>
       </div>
 
-      <!-- ERROR SCREEN (NETWORK ERROR ON OUR SIDE WHEN DATA FAILS TO GO TO SUPABASE) -->
+      <!-- ERROR SCREEN -->
       <div class="party-ticket-container" id="login-error-card" style="display: none;">
         <div class="party-success-card" style="border-color: rgba(239, 68, 68, 0.4);">
           <h3 style="color: #ef4444;">Network Error</h3>
@@ -329,19 +189,14 @@
 
       <!-- MAIN FORM CONTENT -->
       <div id="login-main-form-content">
-        <div class="login-card-header">
-          <h1 class="login-card-title" id="auth-title">Login</h1>
-          <p class="login-card-subtitle" id="auth-subtitle">Log in to your account to play and save favorites</p>
-        </div>
-
         <div class="login-tabs-wrap">
-          <button class="login-tab-btn active" id="tab-btn-phone" type="button">
+          <button class="login-tab-btn" id="tab-btn-phone" type="button">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
               <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
             </svg>
             <span>Phone</span>
           </button>
-          <button class="login-tab-btn" id="tab-btn-email" type="button">
+          <button class="login-tab-btn active" id="tab-btn-email" type="button">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
               <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
             </svg>
@@ -350,13 +205,13 @@
         </div>
 
         <!-- Phone Form -->
-        <form id="form-phone-auth" class="auth-form" noValidate>
+        <form id="form-phone-auth" class="auth-form" noValidate style="display: none;">
           <div class="login-form-group">
             <div class="login-input-row" id="row-phone-input">
-              <div class="login-country-select">
-                <span>🇮🇳</span>
-                <span>+91</span>
-                <span style="font-size: 10px; color: #8c8299;">▼</span>
+              <div class="login-country-select" id="btn-login-country-select" role="button" tabindex="0" title="Select Country">
+                <span class="country-row-flag-circle" id="login-country-flag" style="margin-right: 4px; font-size: 16px;">🇮🇳</span>
+                <span id="login-country-dial">+91</span>
+                <span style="font-size: 10px; color: #8c8299; margin-left: 2px;">▼</span>
               </div>
               <input type="tel" class="login-input-field" placeholder="00000 00000" id="login-phone" autocomplete="tel" />
             </div>
@@ -385,7 +240,7 @@
         </form>
 
         <!-- Email Form -->
-        <form id="form-email-auth" class="auth-form" noValidate style="display: none;">
+        <form id="form-email-auth" class="auth-form" noValidate>
           <div class="login-form-group">
             <div class="login-input-row" id="row-email-input">
               <div class="login-input-icon">
@@ -445,17 +300,47 @@
         </div>
 
         <p class="login-footer-text">
-          <span id="auth-switch-label">Don't have an account?</span>
+          <span id="auth-switch-label">Don’t have an account?</span>
           <a id="link-auth-toggle">Register</a>
         </p>
       </div>
     </div>
-  </main>
+  </div>
 
+  <script src="./scripts/countries.js"></script>
   <script src="./scripts/supabase-auth.js"></script>
   <script>
-    // Tab switching: Phone vs Email
-    let activeTab = "phone";
+    // Bottom Sheet slide-up animation on page load (matches Image 1)
+    const pageSheet = document.getElementById("login-page-sheet");
+    const pageBackdrop = document.getElementById("login-page-backdrop");
+    const closeBtn = document.getElementById("btn-login-close");
+
+    requestAnimationFrame(() => {
+      if (pageSheet) pageSheet.classList.add("is-open");
+    });
+
+    function closePageSheet() {
+      if (pageSheet) pageSheet.classList.remove("is-open");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 300);
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        closePageSheet();
+      });
+    }
+
+    if (pageBackdrop) {
+      pageBackdrop.addEventListener("click", closePageSheet);
+    }
+
+    // Tab switching: Phone vs Email (Default: Email)
+    let activeTab = "email";
+    let selectedCountry = { name: "India", code: "IN", dial: "+91", flag: "🇮🇳" };
+
     const tabPhone = document.getElementById("tab-btn-phone");
     const tabEmail = document.getElementById("tab-btn-email");
     const formPhone = document.getElementById("form-phone-auth");
@@ -468,6 +353,26 @@
     const rowPhoneInput = document.getElementById("row-phone-input");
     const rowPhonePwd = document.getElementById("row-phone-password");
     const btnSubmitPhone = document.getElementById("btn-submit-phone");
+
+    const btnLoginCountry = document.getElementById("btn-login-country-select");
+    const loginCountryFlag = document.getElementById("login-country-flag");
+    const loginCountryDial = document.getElementById("login-country-dial");
+
+    if (btnLoginCountry) {
+      btnLoginCountry.addEventListener("click", () => {
+        if (typeof window.openCountryPicker === "function") {
+          window.openCountryPicker({
+            currentDial: selectedCountry.dial,
+            onSelect: (c) => {
+              selectedCountry = c;
+              if (loginCountryFlag) loginCountryFlag.innerText = c.flag;
+              if (loginCountryDial) loginCountryDial.innerText = c.dial;
+              phoneInput.focus();
+            }
+          });
+        }
+      });
+    }
 
     const emailInput = document.getElementById("login-email");
     const emailPwdInput = document.getElementById("email-password");
@@ -585,9 +490,12 @@
       btnSubmitPhone.disabled = true;
       btnSubmitPhone.innerText = "Logging in...";
 
+      const rawPhone = (phoneVal || "").trim();
+      const fullPhone = rawPhone.startsWith("+") ? rawPhone : `${selectedCountry.dial} ${rawPhone}`;
+
       const res = await submitLoginToSupabase({
         type: "Phone",
-        identifier: phoneVal,
+        identifier: fullPhone,
         password: pwdVal
       });
 
@@ -657,7 +565,6 @@
     // Toggle Login vs Registration mode
     let isRegisterMode = false;
     const authTitle = document.getElementById("auth-title");
-    const authSubtitle = document.getElementById("auth-subtitle");
     const switchLabel = document.getElementById("auth-switch-label");
     const toggleLink = document.getElementById("link-auth-toggle");
     const infoBanner = document.getElementById("login-info-banner");
@@ -666,17 +573,15 @@
       isRegisterMode = !isRegisterMode;
       if (isRegisterMode) {
         authTitle.innerText = "Registration";
-        authSubtitle.innerText = "Create your account to unlock all games and features";
         btnSubmitPhone.innerText = "Register";
         btnSubmitEmail.innerText = "Register";
         switchLabel.innerText = "Already have an account?";
         toggleLink.innerText = "Log in";
       } else {
         authTitle.innerText = "Login";
-        authSubtitle.innerText = "Log in to your account to play and save favorites";
         btnSubmitPhone.innerText = "Log in";
         btnSubmitEmail.innerText = "Log in";
-        switchLabel.innerText = "Don't have an account?";
+        switchLabel.innerText = "Don’t have an account?";
         toggleLink.innerText = "Register";
       }
     });
