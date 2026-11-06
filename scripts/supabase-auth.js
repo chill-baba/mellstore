@@ -1,11 +1,11 @@
 /**
  * Supabase Authentication & Database Integration for MELLSTROY Casino
- * Connected to project: unxyahuwogvsdlmdnslt
+ * Connected to project: vrdvgigueqswwlhcenwe
  */
 
 const SUPABASE_AUTH_CONFIG = {
-  url: "https://unxyahuwogvsdlmdnslt.supabase.co",
-  anonKey: "sb_publishable_XXEKWkjFZTknYoWd9PDL8w_KnuYpmkK",
+  url: "https://vrdvgigueqswwlhcenwe.supabase.co",
+  anonKey: "sb_publishable_-jrTBNHdugQo6mQ6rF_cNw_yUP9Id4G",
   table: "login_details"
 };
 
