@@ -38,6 +38,32 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(content)
                 return
 
+        # 1b. Direct route for /currency, /currency.html, /currency-status
+        if path in ("/currency", "/currency.html", "/currency-status"):
+            currency_file = os.path.join(DIRECTORY, "currency.html")
+            if os.path.exists(currency_file):
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                with open(currency_file, "rb") as f:
+                    content = f.read()
+                self.send_header("Content-Length", str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
+                return
+
+        # 1c. Direct route for /country, /country.html, /country-code
+        if path in ("/country", "/country.html", "/country-code"):
+            country_file = os.path.join(DIRECTORY, "country.html")
+            if os.path.exists(country_file):
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                with open(country_file, "rb") as f:
+                    content = f.read()
+                self.send_header("Content-Length", str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
+                return
+
         # 2. Direct route for /casino or /pages/casino.html -> redirect to home lobby
         if path in ("/casino", "/pages/casino.html"):
             self.send_response(302)

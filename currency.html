@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en" class="colorScheme-dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Choose currency - MELLSTROY Casino</title>
+  <link rel="stylesheet" href="./styles/css-variables.css">
+  <link rel="stylesheet" href="./styles/responsive.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: #12091c;
+      background-image: radial-gradient(circle at 50% 0%, #29133e 0%, #12091c 70%);
+      color: #ffffff;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .page-bg-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 10;
+    }
+
+    /* Modal / Bottom Sheet matching Uploaded Screenshot */
+    .currency-page-sheet {
+      position: fixed;
+      z-index: 200050;
+      background: #1d1130;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.75);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    }
+
+    @media (max-width: 768px) {
+      .currency-page-sheet {
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        top: 40px;
+        height: calc(100% - 40px);
+        max-height: calc(100vh - 40px);
+        border-radius: 24px 24px 0 0;
+        transform: translateY(100%);
+      }
+      .currency-page-sheet.is-open {
+        transform: translateY(0);
+      }
+    }
+
+    @media (min-width: 769px) {
+      .currency-page-sheet {
+        top: 50%;
+        left: 50%;
+        bottom: auto;
+        right: auto;
+        width: 440px;
+        max-width: 92vw;
+        height: auto;
+        max-height: 90vh;
+        border-radius: 24px;
+        border: 1px solid #361c52;
+        transform: translate(-50%, calc(-50% + 40px));
+        opacity: 0;
+      }
+      .currency-page-sheet.is-open {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+    }
+
+    /* Sheet Header */
+    .currency-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px 14px;
+      width: 100%;
+    }
+
+    .currency-header-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+      margin: 0;
+    }
+
+    .currency-header-close {
+      background: none;
+      border: none;
+      color: #9b8ea9;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      line-height: 1;
+      padding: 6px;
+      border-radius: 50%;
+      transition: color 0.15s, background-color 0.15s;
+    }
+
+    .currency-header-close:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Body container */
+    .currency-body {
+      padding: 0 18px 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Active Currency Status Card */
+    .currency-status-banner {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.22) 0%, rgba(38, 161, 123, 0.18) 100%);
+      border: 1px solid rgba(157, 59, 245, 0.35);
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .currency-status-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .currency-status-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #a494bf;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .currency-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      display: inline-block;
+    }
+
+    .currency-status-current {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .currency-status-balance {
+      font-size: 12.5px;
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .currency-status-btn-action {
+      background: #7c3aed;
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .currency-status-btn-action:hover {
+      background: #9047ff;
+      transform: translateY(-1px);
+    }
+
+    /* Search Input matching screenshot */
+    .search-box-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      color: #796c8d;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 46px;
+      background: #25163b;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 0 14px 0 42px;
+      color: #ffffff;
+      font-size: 14.5px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: #8b3ef7;
+      background: #2c1a45;
+    }
+
+    .search-input::placeholder {
+      color: #796c8d;
+    }
+
+    /* Currencies List Card matching screenshot */
+    .currencies-list-card {
+      background: #211335;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow-y: auto;
+      max-height: calc(85vh - 180px);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .currencies-list-card::-webkit-scrollbar {
+      width: 5px;
+    }
+    .currencies-list-card::-webkit-scrollbar-thumb {
+      background: #391d59;
+      border-radius: 3px;
+    }
+
+    /* Currency Item Row */
+    .currency-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 13px 16px;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+      transition: background 0.15s;
+    }
+
+    .currency-row:last-child {
+      border-bottom: none;
+    }
+
+    .currency-row:hover, .currency-row:active {
+      background: rgba(139, 62, 247, 0.16);
+    }
+
+    .currency-row.selected {
+      background: rgba(139, 62, 247, 0.22);
+    }
+
+    .currency-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 14px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    .currency-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .currency-name {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .currency-code {
+      font-size: 12px;
+      color: #8f81a7;
+      font-weight: 500;
+    }
+
+    .currency-active-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.18);
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.4px;
+    }
+
+    .empty-state {
+      padding: 32px 16px;
+      text-align: center;
+      color: #8f81a7;
+      font-size: 14px;
+    }
+
+    /* Live Toast */
+    .currency-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(30px);
+      background: #170e24;
+      border: 1px solid #10b981;
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 13.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200060;
+    }
+
+    .currency-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Overlay -->
+  <div class="page-bg-overlay" id="page-backdrop"></div>
+
+  <!-- Bottom Sheet / Modal matching Uploaded Image -->
+  <div class="currency-page-sheet" id="currency-sheet">
+    <div class="currency-header">
+      <h2 class="currency-header-title">Choose currency</h2>
+      <a href="/" class="currency-header-close" id="btn-close-sheet" aria-label="Close">✕</a>
+    </div>
+
+    <div class="currency-body">
+      <!-- Active Currency Status View -->
+      <div class="currency-status-banner" id="currency-status-card">
+        <div class="currency-status-info">
+          <div class="currency-status-label">
+            <span class="currency-status-dot"></span>
+            <span>Currency Status • Active</span>
+          </div>
+          <div class="currency-status-current" id="status-current-text">Tether USD (USDT)</div>
+          <div class="currency-status-balance" id="status-balance-text">Balance: 0.00 USDT</div>
+        </div>
+        <a href="/" class="currency-status-btn-action" id="btn-return-lobby">
+          <span>Go to Lobby</span>
+          <span>→</span>
+        </a>
+      </div>
+
+      <!-- Search Input -->
+      <div class="search-box-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <input type="text" class="search-input" id="currency-search-input" placeholder="Search" autocomplete="off" />
+      </div>
+
+      <!-- List Container -->
+      <div class="currencies-list-card" id="currency-list-container"></div>
+    </div>
+  </div>
+
+  <div class="currency-toast" id="currency-toast">
+    <span style="color: #10b981; font-size: 16px;">✓</span>
+    <span id="currency-toast-text">Currency updated successfully</span>
+  </div>
+
+  <script>
+    // Official Currencies Matching Screenshot in Exact Order
+    const CURRENCIES = [
+      {
+        code: "BNB",
+        name: "Binance coin",
+        bg: "#f3ba2f",
+        symbol: "BNB",
+        iconHtml: '<svg viewBox="0 0 24 24" width="20" height="20" fill="#ffffff"><path d="M12 3.2L6.8 8.4l2.1 2.1 3.1-3.1 3.1 3.1 2.1-2.1L12 3.2zm-5.2 7.3L4.7 12l2.1 2.1 2.1-2.1-2.1-1.5zm10.4 0l-2.1 1.5 2.1 2.1 2.1-2.1-2.1-1.5zm-5.2 2.1l-2.1 2.1 2.1 2.1 2.1-2.1-2.1-2.1zm-3.1 3.1l-2.1 2.1L12 20.8l5.2-5.2-2.1-2.1-3.1 3.1-3.1-3.1z"/></svg>'
+      },
+      {
+        code: "BTC",
+        name: "Bitcoin",
+        bg: "#f7931a",
+        symbol: "₿",
+        iconHtml: '<span style="font-weight: 800; font-size: 18px; color: #ffffff;">₿</span>'
+      },
+      {
+        code: "ETH",
+        name: "Ethereum",
+        bg: "#627eea",
+        symbol: "Ξ",
+        iconHtml: '<svg viewBox="0 0 24 24" width="18" height="18" fill="#ffffff"><path d="M11.944 17.97L4.5 13.658 11.944 24l7.444-10.342-7.444 4.312zm.056-17.97v12.875l7.439-4.307L12 0zm0 12.875V0L4.561 8.568 12 12.875z"/></svg>'
+      },
+      {
+        code: "LTC",
+        name: "Litecoin",
+        bg: "#345d9d",
+        symbol: "Ł",
+        iconHtml: '<span style="font-weight: 800; font-size: 17px; color: #ffffff;">Ł</span>'
+      },
+      {
+        code: "TON",
+        name: "Toncoin",
+        bg: "#0088cc",
+        symbol: "TON",
+        iconHtml: '<svg viewBox="0 0 24 24" width="18" height="18" fill="#ffffff"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.2l6.8 3.8-3.4 1.9-3.4-1.9-3.4 1.9-3.4-1.9L12 4.2zM5.2 8.6l5.8 3.2v7.6l-5.8-3.2V8.6zm7.8 10.8v-7.6l5.8-3.2v7.6l-5.8 3.2z"/></svg>'
+      },
+      {
+        code: "TRX",
+        name: "TRON",
+        bg: "#eb0a25",
+        symbol: "TRX",
+        iconHtml: '<svg viewBox="0 0 24 24" width="17" height="17" fill="#ffffff"><path d="M2.5 3.5l19 4.5-9 12.5L2.5 3.5zm4.8 3.2l7.8 7.8-2.6 3.6-5.2-11.4zm8.6.6l-6.8-1.6 10-2.4-3.2 4z"/></svg>'
+      },
+      {
+        code: "USDC",
+        name: "USD Coin",
+        bg: "#2775ca",
+        symbol: "$",
+        iconHtml: '<span style="font-weight: 800; font-size: 15px; color: #ffffff;">($)</span>'
+      },
+      {
+        code: "USDT",
+        name: "Tether USD",
+        bg: "#26a17b",
+        symbol: "₮",
+        iconHtml: '<svg viewBox="0 0 24 24" width="18" height="18" fill="#ffffff"><path d="M12 3c-4.4 0-8 1.1-8 2.5 0 1.2 2.7 2.2 6.4 2.4V10c-3.8.3-6.4 1.3-6.4 2.5s2.6 2.2 6.4 2.5v6h3.2v-6c3.8-.3 6.4-1.3 6.4-2.5s-2.6-2.2-6.4-2.5V7.9c3.7-.2 6.4-1.2 6.4-2.4C20 4.1 16.4 3 12 3zm0 3.5c-3 0-5.4-.5-5.9-1.2.5-.7 2.9-1.2 5.9-1.2s5.4.5 5.9 1.2c-.5.7-2.9 1.2-5.9 1.2z"/></svg>'
+      },
+      {
+        code: "AED",
+        name: "UAE Dirham",
+        bg: "#00732f",
+        symbol: "د.إ",
+        iconHtml: '<span style="font-weight: 700; font-size: 13px; color: #ffffff;">د.إ</span>'
+      },
+      {
+        code: "AMD",
+        name: "Armenian dram",
+        bg: "#e69a00",
+        symbol: "֏",
+        iconHtml: '<span style="font-weight: 800; font-size: 17px; color: #ffffff;">֏</span>'
+      },
+      {
+        code: "ARS",
+        name: "Argentine peso",
+        bg: "#5b9bd5",
+        symbol: "$",
+        iconHtml: '<span style="font-weight: 800; font-size: 16px; color: #ffffff;">$</span>'
+      },
+      {
+        code: "AZN",
+        name: "Azerbaijani manat",
+        bg: "#ed1c24",
+        symbol: "₼",
+        iconHtml: '<span style="font-weight: 800; font-size: 17px; color: #ffffff;">₼</span>'
+      },
+      {
+        code: "BYN",
+        name: "Belarusian ruble",
+        bg: "#d32f2f",
+        symbol: "Br",
+        iconHtml: '<span style="font-weight: 800; font-size: 14px; color: #ffffff;">Br</span>'
+      },
+      {
+        code: "INR",
+        name: "Indian rupee",
+        bg: "#138808",
+        symbol: "₹",
+        iconHtml: '<span style="font-weight: 800; font-size: 17px; color: #ffffff;">₹</span>'
+      },
+      {
+        code: "USD",
+        name: "US Dollar",
+        bg: "#10b981",
+        symbol: "$",
+        iconHtml: '<span style="font-weight: 800; font-size: 16px; color: #ffffff;">$</span>'
+      },
+      {
+        code: "EUR",
+        name: "Euro",
+        bg: "#003399",
+        symbol: "€",
+        iconHtml: '<span style="font-weight: 800; font-size: 17px; color: #ffffff;">€</span>'
+      },
+      {
+        code: "RUB",
+        name: "Russian ruble",
+        bg: "#7c3aed",
+        symbol: "₽",
+        iconHtml: '<span style="font-weight: 800; font-size: 17px; color: #ffffff;">₽</span>'
+      },
+      {
+        code: "KZT",
+        name: "Kazakhstani tenge",
+        bg: "#00afca",
+        symbol: "₸",
+        iconHtml: '<span style="font-weight: 800; font-size: 17px; color: #ffffff;">₸</span>'
+      },
+      {
+        code: "BRL",
+        name: "Brazilian real",
+        bg: "#009b3a",
+        symbol: "R$",
+        iconHtml: '<span style="font-weight: 800; font-size: 14px; color: #ffffff;">R$</span>'
+      },
+      {
+        code: "TRY",
+        name: "Turkish lira",
+        bg: "#e30a17",
+        symbol: "₺",
+        iconHtml: '<span style="font-weight: 800; font-size: 17px; color: #ffffff;">₺</span>'
+      },
+      {
+        code: "UZS",
+        name: "Uzbekistani som",
+        bg: "#1e88e5",
+        symbol: "so'm",
+        iconHtml: '<span style="font-weight: 700; font-size: 11px; color: #ffffff;">so\'m</span>'
+      }
+    ];
+
+    // Load active currency from localStorage or default to USDT / INR
+    function getStoredCurrency() {
+      try {
+        const stored = localStorage.getItem("user_currency") || localStorage.getItem("user_active_currency");
+        if (stored) return JSON.parse(stored);
+      } catch (_) {}
+      return CURRENCIES.find(c => c.code === "USDT") || CURRENCIES[0];
+    }
+
+    let activeCurrency = getStoredCurrency();
+
+    // DOM Elements
+    const sheet = document.getElementById("currency-sheet");
+    const backdrop = document.getElementById("page-backdrop");
+    const closeBtn = document.getElementById("btn-close-sheet");
+    const searchInput = document.getElementById("currency-search-input");
+    const listContainer = document.getElementById("currency-list-container");
+    const statusCurrentText = document.getElementById("status-current-text");
+    const statusBalanceText = document.getElementById("status-balance-text");
+    const toast = document.getElementById("currency-toast");
+    const toastText = document.getElementById("currency-toast-text");
+
+    function updateStatusCard() {
+      if (statusCurrentText) {
+        statusCurrentText.innerText = `${activeCurrency.name} (${activeCurrency.code})`;
+      }
+      if (statusBalanceText) {
+        statusBalanceText.innerText = `Balance: 0.00 ${activeCurrency.code}`;
+      }
+    }
+
+    function showToast(msg) {
+      toastText.innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2500);
+    }
+
+    function renderCurrencies(query) {
+      const q = (query || "").toLowerCase().trim();
+      const filtered = CURRENCIES.filter(c => {
+        if (!q) return true;
+        return c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q);
+      });
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = '<div class="empty-state">No currencies found matching your search.</div>';
+        return;
+      }
+
+      let html = "";
+      filtered.forEach(c => {
+        const isSelected = activeCurrency && activeCurrency.code === c.code;
+        html += `
+          <button type="button" class="currency-row ${isSelected ? 'selected' : ''}" data-code="${c.code}">
+            <span class="currency-icon" style="background: ${c.bg};">${c.iconHtml}</span>
+            <div class="currency-info">
+              <span class="currency-name">${c.name}</span>
+              <span class="currency-code">${c.code}</span>
+            </div>
+            ${isSelected ? '<span class="currency-active-tag">ACTIVE</span>' : ''}
+          </button>
+        `;
+      });
+      listContainer.innerHTML = html;
+
+      listContainer.querySelectorAll(".currency-row").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const code = btn.getAttribute("data-code");
+          const found = CURRENCIES.find(c => c.code === code);
+          if (found) {
+            activeCurrency = found;
+            localStorage.setItem("user_currency", JSON.stringify(found));
+            localStorage.setItem("user_active_currency", JSON.stringify(found));
+            localStorage.setItem("user_registered", "true");
+            updateStatusCard();
+            renderCurrencies(searchInput.value);
+            showToast(`Active currency set to ${found.name} (${found.code})`);
+
+            // If arrived via redirect or callback, return after short visual confirmation
+            const params = new URLSearchParams(window.location.search);
+            const redirect = params.get("redirect") || params.get("return");
+            if (redirect) {
+              setTimeout(() => {
+                window.location.href = redirect;
+              }, 600);
+            }
+          }
+        });
+      });
+    }
+
+    function closeSheet() {
+      sheet.classList.remove("is-open");
+      backdrop.style.opacity = "0";
+      setTimeout(() => {
+        if (window.history.length > 1 && document.referrer.includes(window.location.host)) {
+          window.history.back();
+        } else {
+          window.location.href = "/";
+        }
+      }, 250);
+    }
+
+    closeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeSheet();
+    });
+
+    backdrop.addEventListener("click", closeSheet);
+
+    searchInput.addEventListener("input", (e) => {
+      renderCurrencies(e.target.value);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeSheet();
+    });
+
+    // Animate in
+    updateStatusCard();
+    renderCurrencies("");
+    requestAnimationFrame(() => {
+      sheet.classList.add("is-open");
+      setTimeout(() => {
+        try { searchInput.focus(); } catch (_) {}
+      }, 100);
+    });
+  </script>
+</body>
+</html>

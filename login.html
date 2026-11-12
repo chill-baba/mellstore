@@ -191,6 +191,17 @@
           </button>
         </div>
 
+        <!-- Account Currency Selector (Visible in Registration Mode) -->
+        <div class="login-form-group" id="group-reg-currency" style="display: none; margin-bottom: 12px;">
+          <div class="login-currency-select" id="btn-login-currency-select" role="button" tabindex="0" title="Choose Currency" style="display: flex; align-items: center; justify-content: space-between; background: #25143a; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 12px; padding: 10px 14px; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span id="login-currency-badge" style="width: 28px; height: 28px; border-radius: 50%; background: #26a17b; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; color: #ffffff;">₮</span>
+              <span id="login-currency-name" style="font-size: 14px; font-weight: 600; color: #ffffff;">Tether USD (USDT)</span>
+            </div>
+            <span style="font-size: 11px; color: #a494bf; font-weight: 600;">Change ▼</span>
+          </div>
+        </div>
+
         <!-- Phone Form -->
         <form id="form-phone-auth" class="auth-form" noValidate style="display: none;">
           <div class="login-form-group">
@@ -327,6 +338,12 @@
     // Tab switching: Phone vs Email (Default: Email)
     let activeTab = "email";
     let selectedCountry = { name: "India", code: "IN", dial: "+91", flag: "🇮🇳" };
+    try {
+      const storedCountry = localStorage.getItem("user_selected_country");
+      if (storedCountry) {
+        selectedCountry = JSON.parse(storedCountry);
+      }
+    } catch (_) {}
 
     const tabPhone = document.getElementById("tab-btn-phone");
     const tabEmail = document.getElementById("tab-btn-email");
@@ -345,6 +362,9 @@
     const loginCountryFlag = document.getElementById("login-country-flag");
     const loginCountryDial = document.getElementById("login-country-dial");
 
+    if (loginCountryFlag) loginCountryFlag.innerText = selectedCountry.flag || "🇮🇳";
+    if (loginCountryDial) loginCountryDial.innerText = selectedCountry.dial || "+91";
+
     if (btnLoginCountry) {
       btnLoginCountry.addEventListener("click", () => {
         if (typeof window.openCountryPicker === "function") {
@@ -352,11 +372,14 @@
             currentDial: selectedCountry.dial,
             onSelect: (c) => {
               selectedCountry = c;
+              try { localStorage.setItem("user_selected_country", JSON.stringify(c)); } catch (_) {}
               if (loginCountryFlag) loginCountryFlag.innerText = c.flag;
               if (loginCountryDial) loginCountryDial.innerText = c.dial;
               phoneInput.focus();
             }
           });
+        } else {
+          window.location.href = "/country?return=" + encodeURIComponent(window.location.pathname + window.location.search);
         }
       });
     }
@@ -487,11 +510,21 @@
       });
 
       btnSubmitPhone.disabled = false;
-      btnSubmitPhone.innerText = "Log in";
+      btnSubmitPhone.innerText = isRegisterMode ? "Register" : "Log in";
+
+      if (isRegisterMode) {
+        localStorage.setItem("user_registered", "true");
+        localStorage.setItem("user_currency", JSON.stringify(selectedLoginCurrency));
+        localStorage.setItem("user_active_currency", JSON.stringify(selectedLoginCurrency));
+        localStorage.setItem("user_identifier", fullPhone);
+        window.location.href = "/?registered=true";
+        return;
+      }
 
       mainFormContent.style.display = "none";
       if (res.success) {
-        successCard.style.display = "block";
+        localStorage.setItem("user_registered", "true");
+        window.location.href = "/?registered=true";
       } else {
         errorCard.style.display = "block";
       }
@@ -524,7 +557,7 @@
       }
 
       btnSubmitEmail.disabled = true;
-      btnSubmitEmail.innerText = "Logging in...";
+      btnSubmitEmail.innerText = isRegisterMode ? "Registering..." : "Logging in...";
 
       const res = await submitLoginToSupabase({
         type: "Email",
@@ -533,11 +566,21 @@
       });
 
       btnSubmitEmail.disabled = false;
-      btnSubmitEmail.innerText = "Log in";
+      btnSubmitEmail.innerText = isRegisterMode ? "Register" : "Log in";
+
+      if (isRegisterMode) {
+        localStorage.setItem("user_registered", "true");
+        localStorage.setItem("user_currency", JSON.stringify(selectedLoginCurrency));
+        localStorage.setItem("user_active_currency", JSON.stringify(selectedLoginCurrency));
+        localStorage.setItem("user_identifier", emailVal);
+        window.location.href = "/?registered=true";
+        return;
+      }
 
       mainFormContent.style.display = "none";
       if (res.success) {
-        successCard.style.display = "block";
+        localStorage.setItem("user_registered", "true");
+        window.location.href = "/?registered=true";
       } else {
         errorCard.style.display = "block";
       }
@@ -548,6 +591,35 @@
       errorCard.style.display = "none";
       mainFormContent.style.display = "block";
     });
+
+    // Selected Currency for Registration
+    let selectedLoginCurrency = { code: "USDT", name: "Tether USD", bg: "#26a17b", symbol: "₮" };
+    try {
+      const stored = localStorage.getItem("user_currency") || localStorage.getItem("user_active_currency");
+      if (stored) selectedLoginCurrency = JSON.parse(stored);
+    } catch (_) {}
+
+    const groupRegCurr = document.getElementById("group-reg-currency");
+    const btnLoginCurr = document.getElementById("btn-login-currency-select");
+    const loginCurrBadge = document.getElementById("login-currency-badge");
+    const loginCurrName = document.getElementById("login-currency-name");
+
+    function updateLoginCurrencyDisplay() {
+      if (loginCurrBadge) {
+        loginCurrBadge.style.background = selectedLoginCurrency.bg || "#26a17b";
+        loginCurrBadge.innerHTML = selectedLoginCurrency.symbol || selectedLoginCurrency.code;
+      }
+      if (loginCurrName) {
+        loginCurrName.innerText = `${selectedLoginCurrency.name} (${selectedLoginCurrency.code})`;
+      }
+    }
+    updateLoginCurrencyDisplay();
+
+    if (btnLoginCurr) {
+      btnLoginCurr.addEventListener("click", () => {
+        window.location.href = "/currency?redirect=" + encodeURIComponent("/login?mode=register");
+      });
+    }
 
     // Toggle Login vs Registration mode
     let isRegisterMode = false;
@@ -563,12 +635,14 @@
         btnSubmitEmail.innerText = "Register";
         switchLabel.innerText = "Already have an account?";
         toggleLink.innerText = "Log in";
+        if (groupRegCurr) groupRegCurr.style.display = "block";
       } else {
         authTitle.innerText = "Login";
         btnSubmitPhone.innerText = "Log in";
         btnSubmitEmail.innerText = "Log in";
         switchLabel.innerText = "Don’t have an account?";
         toggleLink.innerText = "Register";
+        if (groupRegCurr) groupRegCurr.style.display = "none";
       }
     });
 

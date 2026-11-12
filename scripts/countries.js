@@ -1358,10 +1358,12 @@ window.openCountryPicker = function(options) {
   var backdrop = document.createElement("div");
   backdrop.id = "country-sheet-backdrop";
   backdrop.className = "login-backdrop country-backdrop";
+  backdrop.style.cssText = "z-index: 200049 !important;";
 
   var sheet = document.createElement("div");
   sheet.id = "country-bottom-sheet";
   sheet.className = "login-bottom-sheet country-bottom-sheet";
+  sheet.style.cssText = "z-index: 200050 !important;";
 
   sheet.innerHTML = `
     <div class="login-sheet-header">
@@ -1429,7 +1431,10 @@ window.openCountryPicker = function(options) {
     });
   }
 
-  function closeSheet() {
+  function closeSheet(isFromPopstate) {
+    if (typeof window.popModalHistory === "function") {
+      window.popModalHistory("country-picker", isFromPopstate);
+    }
     sheet.classList.remove("is-open");
     backdrop.classList.remove("is-visible");
     setTimeout(function() {
@@ -1445,8 +1450,8 @@ window.openCountryPicker = function(options) {
     }
   }
 
-  closeBtn.addEventListener("click", closeSheet);
-  backdrop.addEventListener("click", closeSheet);
+  closeBtn.addEventListener("click", function() { closeSheet(); });
+  backdrop.addEventListener("click", function() { closeSheet(); });
 
   searchInput.addEventListener("input", function(e) {
     renderList(e.target.value);
@@ -1459,6 +1464,11 @@ window.openCountryPicker = function(options) {
   requestAnimationFrame(function() {
     backdrop.classList.add("is-visible");
     sheet.classList.add("is-open");
+    if (typeof window.pushModalHistory === "function") {
+      window.pushModalHistory("country-picker", function(fromPop) {
+        closeSheet(fromPop);
+      });
+    }
     setTimeout(function() {
       try { searchInput.focus(); } catch (_) {}
     }, 100);
